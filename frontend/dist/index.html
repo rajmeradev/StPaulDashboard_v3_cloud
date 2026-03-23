@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>frontend</title>
+  <script type="module" crossorigin src="/assets/index-BT2nfZ8b.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-CU82wfab.css">
+</head>
+
+<body>
+  <div id="root"></div>
+  <div id="errordump"
+    style="position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); z-index:9999; color:red; font-size:20px; font-family:monospace; background:black; padding:20px; border:2px solid red; display:none;">
+  </div>
+  <script>
+    window.addEventListener('error', function (e) {
+      document.getElementById('errordump').style.display = 'block';
+      document.getElementById('errordump').innerHTML += '<br/>ERROR: ' + e.message;
+    });
+    window.addEventListener('unhandledrejection', function (e) {
+      document.getElementById('errordump').style.display = 'block';
+      document.getElementById('errordump').innerHTML += '<br/>PROMISE: ' + e.reason;
+    });
+  </script>
+</body>
+
+</html>
