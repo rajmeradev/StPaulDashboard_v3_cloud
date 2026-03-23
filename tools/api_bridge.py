@@ -24,7 +24,10 @@ from fastapi.responses import FileResponse
 
 from tools import excel_reader
 from tools.cache import cache
+from dotenv import load_dotenv
 from tools.ws_manager import ws_manager
+
+load_dotenv()
 
 # ---------------------------------------------------------------------------
 # Setup
@@ -262,6 +265,19 @@ def get_gantt():
     )
 
 
+@app.post("/api/reload")
+def force_reload():
+    if not cache.is_loaded():
+        raise HTTPException(status_code=404, detail="No file uploaded yet.")
+    _schedule_broadcast()
+    return {"status": "ok", "timestamp": cache.get_last_modified(), "clientsNotified": ws_manager.connection_count}
+
+
+@app.get("/api/is-loaded")
+def is_loaded_endpoint():
+    return {"loaded": cache.is_loaded()}
+
+
 # ---------------------------------------------------------------------------
 # Catch-all → serve React SPA
 # ---------------------------------------------------------------------------
@@ -286,4 +302,5 @@ if FRONTEND_DIST.exists():
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000, log_level="info")
+    port = int(os.environ.get("PORT", 8000))
+    uvicorn.run(app, host="0.0.0.0", port=port, log_level="info")

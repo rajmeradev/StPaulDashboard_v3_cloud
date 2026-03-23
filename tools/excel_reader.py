@@ -159,7 +159,7 @@ def read_master_sheet(wb: openpyxl.Workbook) -> Dict[str, Any]:
         schedule_start = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
 
     return {
-        "scheduleStart":          schedule_start.isoformat(),
+        "scheduleStart":          schedule_start.replace(tzinfo=None).isoformat(),
         "maxRunHours":            ws["B2"].value or 40,
         "planningHorizonHours":   ws["B3"].value or 40,
         "line1RateCartonPerMin":  ws["B4"].value or 120,
@@ -234,17 +234,16 @@ def read_schedule_sheet(
             active_end_hr = 0.0
 
         # Time conversion: prefer pre-calculated M/N columns; fall back to K/L
-        # IMPORTANT: make datetimes timezone-aware so the browser shows correct
-        # local plant time. openpyxl returns naive datetimes; we attach
-        # _LOCAL_TZ (system timezone of the API machine = the plant machine).
+        # IMPORTANT: return timezone-NAIVE ISO strings so the browser renders
+        # them as-is (plant local time). Attaching a timezone (e.g. UTC on a
+        # cloud server) causes the browser to convert to its own local timezone,
+        # shifting times incorrectly for users in other zones.
 
         def _to_iso(dt_val, fallback_hrs: float) -> str:
-            """Convert openpyxl datetime (possibly naive) to tz-aware ISO string."""
+            """Convert openpyxl datetime to naive ISO string (no tz offset)."""
             if isinstance(dt_val, datetime):
-                if dt_val.tzinfo is None:
-                    return dt_val.replace(tzinfo=_LOCAL_TZ).isoformat()
-                return dt_val.isoformat()
-            return (schedule_start + timedelta(hours=float(fallback_hrs))).replace(tzinfo=_LOCAL_TZ).isoformat()
+                return dt_val.replace(tzinfo=None).isoformat()
+            return (schedule_start + timedelta(hours=float(fallback_hrs))).isoformat()
 
         start_time_iso = _to_iso(start_time_raw, active_start_hr)
         end_time_iso   = _to_iso(end_time_raw,   active_end_hr)
