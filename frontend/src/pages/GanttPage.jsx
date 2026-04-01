@@ -442,7 +442,8 @@ function GanttChart({ ganttData, pxPerHour, onSelectTask }) {
 export function GanttPage({ ganttData }) {
     const [selectedTask, setSelectedTask] = useState(null)
     const [zoomLevel, setZoomLevel] = useState('24H')
-    const [selectedRun, setSelectedRun] = useState(null) // null = "All"
+    const [selectedRunLine1, setSelectedRunLine1] = useState(null) // null = "All"
+    const [selectedRunLine2, setSelectedRunLine2] = useState(null) // null = "All"
 
     const ZOOM_SCALES = {
         '6H': 180,
@@ -451,25 +452,43 @@ export function GanttPage({ ganttData }) {
         '72H': 15,
     }
 
-    // Build a filtered + re-anchored ganttData for the selected run
+    // Per-line segments for filter UI
+    const segmentsPerLine = useMemo(() => {
+        if (!ganttData) return { line1: [], line2: [] }
+        const extract = (line) => [...new Set(line.tasks.filter(t => t.segment != null).map(t => t.segment))].sort((a, b) => a - b)
+        return {
+            line1: extract(ganttData.lines[0] ?? { tasks: [] }),
+            line2: extract(ganttData.lines[1] ?? { tasks: [] }),
+        }
+    }, [ganttData])
+
+    // Build a filtered + re-anchored ganttData for the per-line selected runs
     const filteredGanttData = useMemo(() => {
-        if (!ganttData || selectedRun === null) return ganttData
+        if (!ganttData) return ganttData
+        // If both are "All", return unfiltered
+        if (selectedRunLine1 === null && selectedRunLine2 === null) return ganttData
 
-        const filteredLines = ganttData.lines.map(line => ({
-            ...line,
-            tasks: line.tasks.filter(t => !t.isBreak && t.segment === selectedRun && t.startTime && t.endTime),
-        }))
+        const runSelections = [selectedRunLine1, selectedRunLine2]
+        const filteredLines = ganttData.lines.map((line, i) => {
+            const sel = runSelections[i]
+            if (sel === null) return line // "All" for this line
+            return {
+                ...line,
+                tasks: line.tasks.filter(t => !t.isBreak && t.segment === sel && t.startTime && t.endTime),
+            }
+        })
 
-        // Find the earliest startTime in this run to re-anchor the time axis
+        // Re-anchor time axis to earliest visible task
         let runStart = null
         filteredLines.forEach(line => line.tasks.forEach(t => {
+            if (!t.startTime) return
             const st = new Date(t.startTime)
             if (!runStart || st < runStart) runStart = st
         }))
 
         const anchor = runStart?.toISOString() ?? ganttData.scheduleStart
         return { ...ganttData, scheduleStart: anchor, scheduleStartLine1: anchor, lines: filteredLines }
-    }, [ganttData, selectedRun])
+    }, [ganttData, selectedRunLine1, selectedRunLine2])
 
     if (!ganttData) {
         return (
@@ -537,28 +556,60 @@ export function GanttPage({ ganttData }) {
                             ))}
                             </div>
 
-                            {/* Run filter — only shown when multiple segments exist */}
-                            {segments.length > 1 && (
+                            {/* Per-line run filters — shown when either line has multiple segments */}
+                            {(segmentsPerLine.line1.length > 1 || segmentsPerLine.line2.length > 1) && (
                                 <>
                                     <div style={{ width: 1, height: 18, background: 'rgba(255,255,255,0.08)', margin: '0 4px' }} />
-                                    {[null, ...segments].map(run => {
-                                        const active = selectedRun === run
-                                        return (
-                                            <button
-                                                key={run ?? 'all'}
-                                                onClick={() => setSelectedRun(run)}
-                                                style={{
-                                                    padding: '4px 12px', borderRadius: 6, fontSize: 11, fontWeight: 600,
-                                                    cursor: 'pointer', transition: 'all 0.15s',
-                                                    background: active ? 'rgba(168,85,247,0.2)' : 'transparent',
-                                                    border: `1px solid ${active ? '#A855F7' : 'rgba(255,255,255,0.1)'}`,
-                                                    color: active ? '#C4B5FD' : '#64748B',
-                                                }}
-                                            >
-                                                {run === null ? 'All Runs' : `Run ${run}`}
-                                            </button>
-                                        )
-                                    })}
+
+                                    {/* Line 1 filter */}
+                                    {segmentsPerLine.line1.length > 1 && (
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                                            <span style={{ fontSize: 10, color: '#64748B', fontWeight: 600, letterSpacing: '0.04em', whiteSpace: 'nowrap' }}>L1:</span>
+                                            {[null, ...segmentsPerLine.line1].map(run => {
+                                                const active = selectedRunLine1 === run
+                                                return (
+                                                    <button
+                                                        key={run ?? 'all'}
+                                                        onClick={() => setSelectedRunLine1(run)}
+                                                        style={{
+                                                            padding: '3px 10px', borderRadius: 5, fontSize: 10, fontWeight: 600,
+                                                            cursor: 'pointer', transition: 'all 0.15s',
+                                                            background: active ? 'rgba(59,130,246,0.2)' : 'transparent',
+                                                            border: `1px solid ${active ? '#3B82F6' : 'rgba(255,255,255,0.1)'}`,
+                                                            color: active ? '#93C5FD' : '#64748B',
+                                                        }}
+                                                    >
+                                                        {run === null ? 'All' : `Run ${run}`}
+                                                    </button>
+                                                )
+                                            })}
+                                        </div>
+                                    )}
+
+                                    {/* Line 2 filter */}
+                                    {segmentsPerLine.line2.length > 1 && (
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                                            <span style={{ fontSize: 10, color: '#64748B', fontWeight: 600, letterSpacing: '0.04em', whiteSpace: 'nowrap' }}>L2:</span>
+                                            {[null, ...segmentsPerLine.line2].map(run => {
+                                                const active = selectedRunLine2 === run
+                                                return (
+                                                    <button
+                                                        key={run ?? 'all'}
+                                                        onClick={() => setSelectedRunLine2(run)}
+                                                        style={{
+                                                            padding: '3px 10px', borderRadius: 5, fontSize: 10, fontWeight: 600,
+                                                            cursor: 'pointer', transition: 'all 0.15s',
+                                                            background: active ? 'rgba(168,85,247,0.2)' : 'transparent',
+                                                            border: `1px solid ${active ? '#A855F7' : 'rgba(255,255,255,0.1)'}`,
+                                                            color: active ? '#C4B5FD' : '#64748B',
+                                                        }}
+                                                    >
+                                                        {run === null ? 'All' : `Run ${run}`}
+                                                    </button>
+                                                )
+                                            })}
+                                        </div>
+                                    )}
                                 </>
                             )}
                         </div>
