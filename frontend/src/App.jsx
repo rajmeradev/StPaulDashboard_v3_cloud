@@ -36,9 +36,9 @@ export default function App() {
     setWsStatus(actualWsStatus)
   }, [actualWsStatus, setWsStatus])
 
-  function handleUploadSuccess() {
+  async function handleUploadSuccess() {
+    await fetchData()
     setDataLoaded(true)
-    setTimeout(fetchData, 300)
   }
 
   // Still checking

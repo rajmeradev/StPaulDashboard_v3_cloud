@@ -20,19 +20,24 @@ export function useApiData(initialWsStatus = 'connecting') {
     useEffect(() => { wsStatusRef.current = wsStatus }, [wsStatus])
 
     const fetchData = useCallback(async () => {
+        const safeFetch = async (url) => {
+            const r = await fetch(url)
+            if (!r.ok) return null
+            return r.json()
+        }
         try {
             const [s, g, m, a, ms] = await Promise.all([
-                fetch(`${API}/api/status`).then(r => r.json()),
-                fetch(`${API}/api/gantt`).then(r => r.json()),
-                fetch(`${API}/api/materials`).then(r => r.json()),
-                fetch(`${API}/api/alerts`).then(r => r.json()),
-                fetch(`${API}/api/master`).then(r => r.json()),
+                safeFetch(`${API}/api/status`),
+                safeFetch(`${API}/api/gantt`),
+                safeFetch(`${API}/api/materials`),
+                safeFetch(`${API}/api/alerts`),
+                safeFetch(`${API}/api/master`),
             ])
-            setStatus(s)
-            setGantt(g)
-            setMaterials(m)
-            setAlerts(a)
-            setMaster(ms)
+            if (s) setStatus(s)
+            if (g) setGantt(g)
+            if (m) setMaterials(m)
+            if (a) setAlerts(a)
+            if (ms) setMaster(ms)
             setIsLive(true)
             setLastRefreshed(new Date())
         } catch {
