@@ -1,0 +1,231 @@
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=DM+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --bg: #060B14;
+  --surface: #0C1520;
+  --surface-2: #111D2C;
+  --bg-input: rgba(12, 21, 32, 0.7);
+  --border: rgba(255, 255, 255, 0.08);
+  --glass-border: rgba(255, 255, 255, 0.06);
+
+  --text-primary: #F8FAFC;
+  --text: #E2E8F0;
+  --text-secondary: #94A3B8;
+  --text-muted: #475569;
+
+  /* Brand Colors — electric teal + punchy orange */
+  --brand-teal-light: #06B6D4;
+  --brand-teal: #0891B2;
+  --brand-orange: #F97316;
+  --brand-orange-light: #FB923C;
+  --brand-white: #F2F2F2;
+
+  /* Map old blue usage to brand Teal */
+  --blue: var(--brand-teal-light);
+  --blue-400: var(--brand-teal-light);
+  --blue-500: var(--brand-teal);
+  --blue-600: var(--brand-teal);
+  --blue-fg: var(--brand-white);
+
+  --orange: var(--brand-orange);
+  --orange-light: var(--brand-orange-light);
+
+  --green: #10B981;
+  --green-400: #34D399;
+  --green-500: #10B981;
+  --green-600: #059669;
+
+  --red: #F43F5E;
+  --red-400: #FB7185;
+  --red-500: #F43F5E;
+  --red-600: #E11D48;
+
+  --amber: #F59E0B;
+
+  /* Typography hierarchy */
+  --font-display: 'Barlow Condensed', system-ui, sans-serif;
+  --font-sans: 'DM Sans', system-ui, sans-serif;
+  --font: 'DM Sans', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --mono: 'JetBrains Mono', monospace;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+}
+
+button {
+  font-family: var(--font);
+  cursor: pointer;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ── Dashboard Classes ────────────────────────────────────────── */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+/* Left accent stripe — set --card-accent on the element */
+.card::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--card-accent, var(--brand-teal));
+  border-radius: 12px 0 0 12px;
+}
+
+.card-header {
+  padding: 14px 20px 14px 23px;
+  background: rgba(6, 11, 20, 0.5);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.card-title {
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.card-body {
+  padding: 20px;
+  flex: 1;
+}
+
+.badge {
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.badge-green {
+  background: rgba(34, 197, 94, 0.1);
+  color: var(--green);
+  border: 1px solid rgba(34, 197, 94, 0.2);
+}
+
+.badge-gray {
+  background: rgba(71, 85, 105, 0.1);
+  color: var(--muted);
+  border: 1px solid rgba(71, 85, 105, 0.2);
+}
+
+.badge-red {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--red);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.dot-pulse {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4);
+  }
+
+  70% {
+    box-shadow: 0 0 0 6px rgba(34, 197, 94, 0);
+  }
+
+  100% {
+    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0);
+  }
+}
+
+.progress-track {
+  width: 100%;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.3s ease;
+}
+
+.mono {
+  font-family: var(--mono);
+}
+
+.fade-in {
+  animation: fadeIn 0.4s both;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
