@@ -674,7 +674,7 @@ export function GanttPage({ ganttData }) {
                                 )
                             })}
                             <span style={{ fontSize: 9, color: '#334155', fontFamily: 'var(--font-mono)' }}>
-                                {selectedRun !== null ? `RUN ${selectedRun} · ` : ''}ZOOM: {zoomLevel}
+                                {selectedRunLine1 !== null ? `L1:R${selectedRunLine1} ` : ''}{selectedRunLine2 !== null ? `L2:R${selectedRunLine2} · ` : ''}ZOOM: {zoomLevel}
                             </span>
                         </div>
                     </div>
