@@ -310,7 +310,10 @@ if FRONTEND_DIST.exists():
     def serve_spa(full_path: str = ""):
         index = FRONTEND_DIST / "index.html"
         if index.exists():
-            return FileResponse(index)
+            return FileResponse(
+                index,
+                headers={"Cache-Control": "no-cache, no-store, must-revalidate"},
+            )
         return {"error": "Frontend build not found. Run: cd frontend && npm run build"}
 
 
