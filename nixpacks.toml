@@ -2,7 +2,4 @@
 nixPkgs = ["nodejs_20", "python311", "python311Packages.pip"]
 
 [phases.install]
-cmds = ["python3 -m venv /opt/venv", "/opt/venv/bin/pip install -r requirements.txt", "cd frontend && npm install && cd .."]
-
-[phases.build]
-cmds = ["cd frontend && npm run build && cd .."]
+cmds = ["python3 -m venv /opt/venv", "/opt/venv/bin/pip install -r requirements.txt", "cd frontend && npm install && npm run build && cd .."]
