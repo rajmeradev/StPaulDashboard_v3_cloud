@@ -2,6 +2,6 @@
 builder = "nixpacks"
 
 [deploy]
-startCommand = "uvicorn tools.api_bridge:app --host 0.0.0.0 --port $PORT"
+startCommand = "/opt/venv/bin/uvicorn tools.api_bridge:app --host 0.0.0.0 --port $PORT"
 healthcheckPath = "/"
 restartPolicyType = "ON_FAILURE"
